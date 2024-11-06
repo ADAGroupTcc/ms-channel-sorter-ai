@@ -7,7 +7,7 @@ from bson import ObjectId
 
 router = APIRouter()
 
-@router.get("/v1/search", response_model=list[UserSchema])
+@router.get("/v1/search", response_model=dict)
 async def search(user_id: str):
     user = users_collection.find_one({"_id": ObjectId(user_id)})
     if not user:
@@ -40,13 +40,19 @@ async def search(user_id: str):
         users.append(user_obj)
     
     clustered_users = cluster_users(users, user_id)
-    print()
-    return [
-        UserSchema(
-            id=user.id,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            location=user.location,
-            interests=user.categories
-        ) for user in clustered_users
-    ]
+    
+    common_categories = set(clustered_users[0].categories)
+    for user in clustered_users[1:]:
+        common_categories.intersection_update(user.categories)
+    
+    return {
+        "users": [
+            UserSchema(
+                id=user.id,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                nickname=user.nickname,
+            ) for user in clustered_users
+        ],
+        "categories": list(common_categories)
+    }
