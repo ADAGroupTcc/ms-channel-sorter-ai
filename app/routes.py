@@ -15,10 +15,10 @@ async def search(user_id: str):
     
     all_users = list(users_collection.aggregate([{
         "$lookup": {
-            "from": "categories",  # Nome da coleção de categorias
-            "localField": "categories",  # Campo que contém o array de ObjectId de categorias
-            "foreignField": "_id",  # Campo da coleção de categorias que faz o join
-            "as": "categories"  # Nome do campo onde as categorias serão populadas
+            "from": "categories",
+            "localField": "categories",
+            "foreignField": "_id",
+            "as": "categories"
         }
     }]))
     

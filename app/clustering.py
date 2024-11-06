@@ -32,7 +32,7 @@ def cluster_users(users: List[User], user_id: str) -> List[User]:
     clusters = agg_clust.fit_predict(total_distances)
 
     user_index = next(i for i, user in enumerate(users_to_cluster) if user.id == user_id)
-    user_cluster = clusters[user_index]  # Identificar o cluster do usuário específico
+    user_cluster = clusters[user_index]
 
     same_cluster_users = [user for i, user in enumerate(users_to_cluster) if clusters[i] == user_cluster]
 
@@ -43,13 +43,13 @@ def cluster_users(users: List[User], user_id: str) -> List[User]:
         for i in range(len(users_to_cluster)):
             if len(same_cluster_users) >= 4:
                 break
-            if clusters[i] != user_cluster:  # Evitar pegar os mesmos usuários
+            if clusters[i] != user_cluster:
                 additional_users.append(users_to_cluster[i])
                 same_cluster_users.append(users_to_cluster[i])
 
         selected_cluster = same_cluster_users[:4]
 
     else:
-        selected_cluster = same_cluster_users[:4]  # Garantir que tenha exatamente 4 usuários
+        selected_cluster = same_cluster_users[:4]
 
     return selected_cluster
