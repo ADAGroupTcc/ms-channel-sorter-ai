@@ -1,22 +1,21 @@
-FROM golang:1.22.4-alpine3.19 AS build
-WORKDIR /src
+FROM python:3.10-slim AS build
+WORKDIR /app
 
+# Instalar dependências do sistema
+RUN apt-get update && apt-get install -y gcc
+
+# Copiar arquivos do projeto
+COPY pyproject.toml poetry.lock ./
 COPY . .
 
-RUN apk add -U --no-cache gcc g++ openssh
+# Instalar Poetry
+RUN pip install poetry
 
-RUN go mod download \
-  && CGO_ENABLED=0 go build -ldflags='-s -w -extldflags "-static"' -o bin/api cmd/api/main.go
+# Instalar dependências do projeto
+RUN poetry config virtualenvs.create false && poetry install --no-dev
 
-FROM alpine:3.18.2
-WORKDIR /home/adda-tcc/app
-
-COPY --from=build /src/docker-entrypoint.sh /src/bin/api ./
-COPY --from=build /src/mongodb.pem ./
-RUN chmod +x docker-entrypoint.sh
-
+# Expor a porta da aplicação
 EXPOSE 8080
 
-HEALTHCHECK --interval=5s --timeout=3s CMD wget --no-verbose --tries=3 --spider http://localhost:7000/health || exit 1
-ENTRYPOINT ["/home/adda-tcc/app/docker-entrypoint.sh"]
-CMD ["/home/adda-tcc/app/api"]
+# Comando para iniciar a aplicação
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
