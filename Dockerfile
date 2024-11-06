@@ -8,7 +8,7 @@ COPY . .
 
 RUN pip install poetry
 
-RUN poetry config virtualenvs.create false && poetry install --no-dev
+RUN poetry config virtualenvs.create false && poetry lock && poetry install --no-dev
 
 EXPOSE 8080
 
