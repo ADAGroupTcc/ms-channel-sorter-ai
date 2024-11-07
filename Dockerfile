@@ -1,15 +1,12 @@
 FROM python:3.10-slim AS build
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y gcc
+RUN apt-get update && apt-get install -y --no-install-recommends
 
-COPY pyproject.toml poetry.lock ./
-COPY . .
+COPY requirements.txt .
 
-RUN pip install poetry
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN poetry config virtualenvs.create false && poetry lock && poetry install --no-dev
+EXPOSE 80
 
-EXPOSE 8080
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "main:app", "--port", "80"]
