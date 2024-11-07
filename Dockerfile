@@ -1,6 +1,8 @@
 FROM python:3.10-slim AS build
 WORKDIR /app
 
+COPY . .
+
 RUN apt-get update && apt-get install -y --no-install-recommends
 
 COPY requirements.txt .
