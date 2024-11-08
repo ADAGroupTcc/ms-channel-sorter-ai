@@ -37,19 +37,17 @@ def cluster_users(users: List[User], user_id: str) -> List[User]:
     same_cluster_users = [user for i, user in enumerate(users_to_cluster) if clusters[i] == user_cluster]
 
     if len(same_cluster_users) < 4:
-        remaining_users_needed = 4 - len(same_cluster_users)
-        
-        additional_users = []
         for i in range(len(users_to_cluster)):
             if len(same_cluster_users) >= 4:
                 break
             if clusters[i] != user_cluster:
-                additional_users.append(users_to_cluster[i])
                 same_cluster_users.append(users_to_cluster[i])
 
         selected_cluster = same_cluster_users[:4]
-
     else:
+        if users_to_cluster[user_index] not in same_cluster_users[:4]:
+            same_cluster_users.remove(users_to_cluster[user_index])
+            same_cluster_users = [users_to_cluster[user_index]] + same_cluster_users[:3]
         selected_cluster = same_cluster_users[:4]
 
     return selected_cluster
