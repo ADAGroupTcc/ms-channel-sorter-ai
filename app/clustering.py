@@ -12,9 +12,17 @@ def cluster_users(users: List[User], user_id: str) -> List[User]:
     locations = np.array([user.location for user in users_to_cluster]) 
 
     categories = [set(cat for cat in user.categories) for user in users_to_cluster]
+    
+    if not categories or all(len(cat) == 0 for cat in categories):
+        print(categories)
+        raise ValueError("Categories are empty or not properly formatted.")
+    
     mlb = MultiLabelBinarizer()
     encoded_categories = mlb.fit_transform(categories)
 
+    if encoded_categories.shape[1] == 0:
+        raise ValueError("Encoded categories array is empty.")
+    
     category_distances = pairwise_distances(encoded_categories, metric="cosine")
     
     location_weight = 1
@@ -37,11 +45,12 @@ def cluster_users(users: List[User], user_id: str) -> List[User]:
     same_cluster_users = [user for i, user in enumerate(users_to_cluster) if clusters[i] == user_cluster]
 
     if len(same_cluster_users) < 4:
-        for i in range(len(users_to_cluster)):
-            if len(same_cluster_users) >= 4:
-                break
-            if clusters[i] != user_cluster:
-                same_cluster_users.append(users_to_cluster[i])
+        if len(clusters) > 1:
+            for i in range(len(users_to_cluster)):
+                if len(same_cluster_users) >= 4:
+                    break
+                if clusters[i] != user_cluster:
+                    same_cluster_users.append(users_to_cluster[i])
 
         selected_cluster = same_cluster_users[:4]
     else:
