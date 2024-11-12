@@ -5,6 +5,8 @@ from app.models import User
 from typing import List
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
+from app.db import users_collection
+import random
 
 def cluster_users(users: List[User], user_id: str) -> List[User]:
     users_to_cluster = [user for user in users]
@@ -44,19 +46,35 @@ def cluster_users(users: List[User], user_id: str) -> List[User]:
 
     same_cluster_users = [user for i, user in enumerate(users_to_cluster) if clusters[i] == user_cluster]
 
-    if len(same_cluster_users) < 4:
+    if len(same_cluster_users) < 3:
         if len(clusters) > 1:
             for i in range(len(users_to_cluster)):
-                if len(same_cluster_users) >= 4:
+                if len(same_cluster_users) >= 3:
                     break
                 if clusters[i] != user_cluster:
                     same_cluster_users.append(users_to_cluster[i])
 
-        selected_cluster = same_cluster_users[:4]
+        selected_cluster = same_cluster_users[:2]
     else:
-        if users_to_cluster[user_index] not in same_cluster_users[:4]:
+        if users_to_cluster[user_index] not in same_cluster_users[:3]:
             same_cluster_users.remove(users_to_cluster[user_index])
-            same_cluster_users = [users_to_cluster[user_index]] + same_cluster_users[:3]
-        selected_cluster = same_cluster_users[:4]
+            same_cluster_users = [users_to_cluster[user_index]] + random.sample(same_cluster_users, 2)
+        selected_cluster = same_cluster_users[:3]
+
+    mock_user = User(
+        id="6733384cd8f8afb772b9457b",
+        first_name="Rafael",
+        last_name="Ferraz",
+        email="rafael.ferraz@gmail.com",
+        description="",
+        nickname="rafaelferraz",
+        cpf="58885459230",
+        location=[-23.557958, -46.775498],
+        categories=["Literatura","Música","Tecnologia","Fotografia"],
+        created_at="2024-11-12T11:13:16.732Z",
+        updated_at="2024-11-12T11:13:16.732Z"
+    )
+    
+    selected_cluster.append(mock_user)
 
     return selected_cluster
